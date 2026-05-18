@@ -2,7 +2,7 @@
   "name": "Workout Tracker",
   "short_name": "Workout",
   "description": "Personal gym workout tracker with training plans, progress tracking, and statistics",
-  "start_url": "/workout-tracker/",
+  "start_url": "/gymhanni/",
   "display": "fullscreen",
   "orientation": "portrait",
   "background_color": "#000000",
