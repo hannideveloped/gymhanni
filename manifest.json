@@ -1,0 +1,26 @@
+{
+  "name": "Workout Tracker",
+  "short_name": "Workout",
+  "description": "Personal gym workout tracker with training plans, progress tracking, and statistics",
+  "start_url": "/workout-tracker/",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["health", "fitness", "sports"],
+  "lang": "de"
+}

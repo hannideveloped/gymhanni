@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <!-- iOS PWA meta tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Workout" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <!-- Notch + safe area support -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <!-- Theme colors -->
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)" />
+  <!-- Apple touch icon (will be replaced by generated canvas icon) -->
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="manifest" href="manifest.json" />
+  <title>Workout Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="dark-mode">
+
+  <!-- ==================== LOADING SCREEN ==================== -->
+  <div id="loading-screen">
+    <div class="loading-logo">
+      <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Dumbbell icon -->
+        <rect x="10" y="34" width="12" height="12" rx="3" fill="#007AFF"/>
+        <rect x="58" y="34" width="12" height="12" rx="3" fill="#007AFF"/>
+        <rect x="18" y="28" width="8" height="24" rx="3" fill="#007AFF"/>
+        <rect x="54" y="28" width="8" height="24" rx="3" fill="#007AFF"/>
+        <rect x="26" y="37" width="28" height="6" rx="3" fill="#007AFF"/>
+      </svg>
+      <div class="loading-title">Workout</div>
+      <div class="loading-subtitle">Tracker</div>
+    </div>
+    <div class="loading-spinner"></div>
+  </div>
+
+  <!-- ==================== MAIN APP ==================== -->
+  <div id="app" style="display:none;">
+
+    <!-- ===== TOP STATUS BAR SPACER ===== -->
+    <div class="safe-top"></div>
+
+    <!-- ===== SCREEN CONTAINER ===== -->
+    <div id="screen-container">
+
+      <!-- ======= TAB 1: TRAINING ======= -->
+      <section id="tab-training" class="tab-screen active">
+
+        <!-- Training Home View -->
+        <div id="view-training-home" class="view active">
+          <div class="screen-header">
+            <h1 class="screen-title">Training</h1>
+            <button class="icon-btn" id="btn-plan-switch" aria-label="Plan wechseln">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="17 1 21 5 17 9"></polyline>
+                <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                <polyline points="7 23 3 19 7 15"></polyline>
+                <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Active Plan Badge -->
+          <div class="plan-badge-container">
+            <span class="plan-badge" id="active-plan-badge">Plan Trainer</span>
+          </div>
+
+          <!-- Last Session Card -->
+          <div class="card" id="last-session-card">
+            <div class="card-label">Letzte Einheit</div>
+            <div id="last-session-content" class="last-session-content">
+              <span class="muted">Noch kein Training aufgezeichnet</span>
+            </div>
+          </div>
+
+          <!-- Session Selection -->
+          <div class="section-title">Heutige Einheit wählen</div>
+          <div id="session-cards-container" class="session-cards"></div>
+        </div>
+
+        <!-- Training Active View -->
+        <div id="view-training-active" class="view">
+          <!-- Progress bar -->
+          <div class="training-header">
+            <button class="text-btn" id="btn-end-training">Beenden</button>
+            <div class="progress-info">
+              <span id="exercise-counter">Übung 1 von 9</span>
+            </div>
+            <button class="text-btn" id="btn-skip-exercise">Weiter</button>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar" id="exercise-progress-bar"></div>
+          </div>
+
+          <!-- Exercise swipe area -->
+          <div id="exercise-swipe-area" class="exercise-swipe-area">
+            <div id="exercise-card" class="exercise-card">
+              <div class="exercise-name" id="exercise-name">Übungsname</div>
+              <div class="exercise-target" id="exercise-target">3 Sätze × 8-12 Wdh</div>
+              <div class="weight-suggestion" id="weight-suggestion"></div>
+
+              <!-- Note field -->
+              <div class="note-container">
+                <input type="text" id="exercise-note" class="note-input" placeholder="Notiz (z.B. Griffweite, Tempo...)" autocomplete="off" autocorrect="off" />
+              </div>
+
+              <!-- Sets rows -->
+              <div id="sets-container" class="sets-container"></div>
+
+              <!-- Add set button -->
+              <button class="add-set-btn" id="btn-add-set">+ Satz hinzufügen</button>
+            </div>
+          </div>
+
+          <!-- Rest Timer overlay -->
+          <div id="rest-timer-overlay" class="rest-timer-overlay hidden">
+            <div class="rest-timer-card">
+              <div class="rest-timer-title">Pause</div>
+              <svg class="timer-circle" width="200" height="200" viewBox="0 0 200 200">
+                <circle class="timer-bg" cx="100" cy="100" r="88" />
+                <circle class="timer-progress" id="timer-circle-progress" cx="100" cy="100" r="88" />
+              </svg>
+              <div class="timer-display" id="timer-display">2:00</div>
+              <div class="timer-controls">
+                <button class="timer-btn" id="btn-timer-minus">-30s</button>
+                <button class="timer-btn timer-btn-skip" id="btn-timer-skip">Überspringen</button>
+                <button class="timer-btn" id="btn-timer-plus">+30s</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Swipe hint -->
+          <div class="swipe-hint" id="swipe-hint">← Wische für nächste Übung →</div>
+        </div>
+
+        <!-- Training Summary View -->
+        <div id="view-training-summary" class="view">
+          <div class="screen-header">
+            <h1 class="screen-title">Einheit beendet 🎉</h1>
+          </div>
+          <div id="summary-content" class="summary-content"></div>
+          <button class="btn-primary full-width" id="btn-save-workout">Workout speichern</button>
+        </div>
+
+      </section>
+
+      <!-- ======= TAB 2: VERLAUF ======= -->
+      <section id="tab-history" class="tab-screen">
+        <div class="screen-header">
+          <h1 class="screen-title">Verlauf</h1>
+        </div>
+        <div class="filter-bar">
+          <button class="filter-btn active" data-filter="all">Alle</button>
+          <button class="filter-btn" data-filter="trainer">Plan Trainer</button>
+          <button class="filter-btn" data-filter="optimiert">Plan Optimiert</button>
+        </div>
+        <div id="history-list" class="history-list">
+          <div class="empty-state">
+            <div class="empty-icon">📋</div>
+            <div class="empty-text">Noch keine Workouts</div>
+            <div class="empty-sub">Starte dein erstes Training!</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======= TAB 3: STATISTIKEN ======= -->
+      <section id="tab-stats" class="tab-screen">
+        <div class="screen-header">
+          <h1 class="screen-title">Statistiken</h1>
+        </div>
+        <div id="stats-content" class="stats-content">
+          <!-- Streak Card -->
+          <div class="card stats-card">
+            <div class="stats-row">
+              <div class="stat-item">
+                <div class="stat-value" id="stat-streak">0</div>
+                <div class="stat-label">Wochen Streak</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value" id="stat-total-workouts">0</div>
+                <div class="stat-label">Workouts gesamt</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value" id="stat-total-hours">0h</div>
+                <div class="stat-label">Trainingsstunden</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tonnage Card -->
+          <div class="card stats-card">
+            <div class="card-label">Gesamtvolumen</div>
+            <div class="stat-value-large" id="stat-tonnage">0 kg</div>
+            <div class="stat-label">Weight × Reps × Sets</div>
+          </div>
+
+          <!-- Weekly Activity Chart -->
+          <div class="card stats-card">
+            <div class="card-label">Workouts diese Woche</div>
+            <canvas id="weekly-chart" height="80"></canvas>
+          </div>
+
+          <!-- Exercise selector for line chart -->
+          <div class="card stats-card">
+            <div class="card-label">Top-Set Entwicklung</div>
+            <select id="exercise-chart-select" class="select-input">
+              <option value="">Übung wählen...</option>
+            </select>
+            <canvas id="exercise-chart" height="160" style="margin-top: 12px;"></canvas>
+          </div>
+
+          <!-- Personal Records -->
+          <div class="card stats-card">
+            <div class="card-label">Personal Records 🏆</div>
+            <div id="pr-list" class="pr-list">
+              <span class="muted">Noch keine PRs</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======= TAB 4: EINSTELLUNGEN ======= -->
+      <section id="tab-settings" class="tab-screen">
+        <div class="screen-header">
+          <h1 class="screen-title">Einstellungen</h1>
+        </div>
+        <div class="settings-content">
+
+          <div class="settings-section-title">Training</div>
+          <div class="card settings-card">
+            <div class="settings-row">
+              <div class="settings-label">Aktiver Plan</div>
+              <select id="setting-plan" class="select-input">
+                <option value="trainer">Plan Trainer</option>
+                <option value="optimiert">Plan Optimiert</option>
+              </select>
+            </div>
+            <div class="settings-divider"></div>
+            <div class="settings-row">
+              <div class="settings-label">Pausentimer</div>
+              <select id="setting-timer" class="select-input">
+                <option value="60">60 Sek</option>
+                <option value="90">90 Sek</option>
+                <option value="120" selected>120 Sek</option>
+                <option value="180">180 Sek</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="settings-section-title">Darstellung</div>
+          <div class="card settings-card">
+            <div class="settings-row">
+              <div class="settings-label">Dark Mode</div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-darkmode" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="settings-section-title">Sonstiges</div>
+          <div class="card settings-card">
+            <div class="settings-row">
+              <div class="settings-label">Vibration</div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-vibration" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="settings-section-title">Daten</div>
+          <div class="card settings-card">
+            <button class="settings-action-btn" id="btn-export">
+              <span>Daten exportieren (JSON)</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </button>
+            <div class="settings-divider"></div>
+            <label class="settings-action-btn" id="btn-import-label">
+              <span>Daten importieren (JSON)</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <input type="file" id="btn-import" accept=".json" style="display:none;" />
+            </label>
+            <div class="settings-divider"></div>
+            <button class="settings-action-btn danger" id="btn-delete-all">
+              <span>Alle Daten löschen</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            </button>
+          </div>
+
+          <div class="settings-section-title">Info</div>
+          <div class="card settings-card">
+            <div class="settings-row">
+              <div class="settings-label">Version</div>
+              <div class="settings-value muted">1.0.0</div>
+            </div>
+            <div class="settings-divider"></div>
+            <div class="settings-row">
+              <div class="settings-label">Workout Tracker PWA</div>
+              <div class="settings-value muted">by Abdul Hannan</div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </div><!-- end screen-container -->
+
+    <!-- ======= BOTTOM NAVIGATION ======= -->
+    <nav id="bottom-nav" class="bottom-nav">
+      <button class="nav-item active" data-tab="training" aria-label="Training">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="10" y="9" width="4" height="6" rx="1"/>
+          <rect x="3" y="8" width="3" height="8" rx="1"/>
+          <rect x="18" y="8" width="3" height="8" rx="1"/>
+          <line x1="6" y1="12" x2="10" y2="12"/>
+          <line x1="14" y1="12" x2="18" y2="12"/>
+        </svg>
+        <span class="nav-label">Training</span>
+      </button>
+      <button class="nav-item" data-tab="history" aria-label="Verlauf">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <span class="nav-label">Verlauf</span>
+      </button>
+      <button class="nav-item" data-tab="stats" aria-label="Statistiken">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10"/>
+          <line x1="12" y1="20" x2="12" y2="4"/>
+          <line x1="6" y1="20" x2="6" y2="14"/>
+        </svg>
+        <span class="nav-label">Statistiken</span>
+      </button>
+      <button class="nav-item" data-tab="settings" aria-label="Einstellungen">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        <span class="nav-label">Einstellungen</span>
+      </button>
+    </nav>
+
+  </div><!-- end app -->
+
+  <!-- ======= TOAST NOTIFICATION ======= -->
+  <div id="toast" class="toast hidden" role="alert" aria-live="polite"></div>
+
+  <!-- ======= MODAL DIALOG ======= -->
+  <div id="modal-overlay" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-title" id="modal-title">Bestätigen</div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-actions">
+        <button class="modal-btn modal-btn-cancel" id="modal-cancel">Abbrechen</button>
+        <button class="modal-btn modal-btn-confirm" id="modal-confirm">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= HISTORY DETAIL MODAL ======= -->
+  <div id="history-detail-overlay" class="modal-overlay hidden">
+    <div class="modal-card modal-card-large">
+      <div class="modal-header">
+        <div class="modal-title" id="history-detail-title">Workout Details</div>
+        <button class="icon-btn" id="btn-close-history-detail">✕</button>
+      </div>
+      <div id="history-detail-body" class="history-detail-body"></div>
+    </div>
+  </div>
+
+  <!-- ======= CONFETTI CANVAS ======= -->
+  <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
+
+  <script src="app.js"></script>
+</body>
+</html>
